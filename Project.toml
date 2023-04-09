@@ -1,0 +1,19 @@
+name = "GraphsExt"
+uuid = "69a6172a-6e93-4cbc-8d73-93c06968df79"
+authors = ["John Lapeyre <jlapeyre@users.noreply.github.com> and contributors"]
+version = "1.0.0"
+
+[deps]
+Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+
+[compat]
+Dictionaries = "0.3"
+Graphs = "^1.8"
+julia = "1.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
