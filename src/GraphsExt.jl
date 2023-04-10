@@ -1,13 +1,17 @@
 module GraphsExt
 
 using Graphs: Graphs, AbstractGraph,  rem_edge!, add_edge!, topological_sort,
-    inneighbors, outneighbors
-using Graphs.SimpleGraphs: AbstractSimpleGraph, DiGraph
+    inneighbors, outneighbors, edgetype
+using Graphs.SimpleGraphs: AbstractSimpleGraph, DiGraph, SimpleDiGraph
+using Dictionaries: Dictionary
 
 export split_edge!, EdgesOrdered, edges_topological, dag_longest_path, remove_vertices!
 
 include("remove_vertices.jl")
-using .RemoveVertices: remove_vertices!
+using .RemoveVertices: RemoveVertices, remove_vertices!
+
+RemoveVertices.index_type(::SimpleDiGraph{IntT}) where {IntT} = IntT
+RemoveVertices.num_vertices(g::AbstractGraph) = Graphs.nv(g)
 
 """
     split_edge!(g, vfrom, vto, vmid)
@@ -79,6 +83,17 @@ function Base.iterate(et::EdgesOrdered, (i, j)=(1, 1))
         overts = outneighbors(et.graph, et.verts[i])
     end
     return (edgetype(et.graph)(et.verts[i], overts[j]), (i, j + 1))
+end
+
+function edges_from(graph::AbstractSimpleGraph, vertex)
+    return edges_from!(edgetype(graph)[], graph, vertex)
+end
+
+function edges_from!(_edges, graph::AbstractSimpleGraph, vertex)
+    for v in outneighbors(graph, vertex)
+        push!(_edges, edgetype(graph)(vertex, v))
+    end
+    return _edges
 end
 
 """
@@ -199,7 +214,7 @@ function dag_longest_path(G, topo_order=topological_sort(G), ::Type{IntT}=eltype
         # us = [(dist[u][1] + default_weight, u) for u in inneighbors(G, v)]
         # maxu = isempty(us) ? (0, v) :  maximumby(us; by=first)
 
-        set!(dist, v, first(maxu) >= 0 ? maxu : (0, v))
+        Dictionaries.set!(dist, v, first(maxu) >= 0 ? maxu : (0, v))
     end
     (_, v) = findmax(first, dist) # 'v' is the dict key
     u = typemax(Int)
