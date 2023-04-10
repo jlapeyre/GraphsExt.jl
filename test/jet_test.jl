@@ -20,7 +20,7 @@ function (::MayThrowIsOk)(report_type::Type{<:InferenceErrorReport}, @nospeciali
 end
 
 # imported to be declared as modules filtered out from analysis result
-import StaticArrays
+# import StaticArrays
 
 @testset "jet" begin
     if get(ENV, "GRAPHS_EXT_JET_TEST", "") == "true"
@@ -28,7 +28,7 @@ import StaticArrays
             "GraphsExt";
             report_pass = MayThrowIsOk(), # TODO have something more fine grained than a generic "do not care about thrown errors"
             ignored_modules = ( # TODO fix issues with these modules or report them upstrem
-                AnyFrameModule(StaticArrays),
+                # AnyFrameModule(StaticArrays),
                 # AnyFrameModule(Compose),
                 #                AnyFrameModule(Base),
             ),
