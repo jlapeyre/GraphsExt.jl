@@ -1,7 +1,14 @@
 module GraphsExt
 
-using Graphs: Graphs, AbstractGraph,  rem_edge!, add_edge!, topological_sort,
-    inneighbors, outneighbors, edgetype
+using Graphs:
+    Graphs,
+    AbstractGraph,
+    rem_edge!,
+    add_edge!,
+    topological_sort,
+    inneighbors,
+    outneighbors,
+    edgetype
 using Graphs.SimpleGraphs: AbstractSimpleGraph, DiGraph, SimpleDiGraph
 using Dictionaries: Dictionary
 
@@ -21,9 +28,7 @@ Remove edge `vfrom -> vto` and replace with two edges `vfrom  -> vmid -> vto`.
 Remove the edge `(vfrom, vto)` and replace with two edges, `(vfrom, vmid)`
 and `(vmid, vto)`.
 """
-function split_edge!(
-    g::AbstractGraph, vfrom::Integer, vto::Integer, vmid::Integer
-)
+function split_edge!(g::AbstractGraph, vfrom::Integer, vto::Integer, vmid::Integer)
     rem_edge!(g, vfrom, vto)
     add_edge!(g, vfrom, vmid)
     add_edge!(g, vmid, vto)
@@ -74,7 +79,7 @@ end
 Base.IteratorSize(et::Type{<:EdgesOrdered}) = Base.HasLength()
 Base.length(et::EdgesOrdered) = Graphs.ne(et.graph)
 
-function Base.iterate(et::EdgesOrdered, (i, j)=(1, 1))
+function Base.iterate(et::EdgesOrdered, (i, j) = (1, 1))
     overts = outneighbors(et.graph, et.verts[i])
     while j > length(overts)
         j = 1
@@ -130,7 +135,11 @@ Return a longest path in the directed acyclic graph (DAG) `G`.
 
 `G` must a DAG. An optimized method for `G::DiGraph` is implemented.
 """
-function dag_longest_path(G::DiGraph, topo_order=topological_sort(G), ::Type{IntT}=eltype(G)) where IntT
+function dag_longest_path(
+    G::DiGraph,
+    topo_order = topological_sort(G),
+    ::Type{IntT} = eltype(G),
+) where {IntT}
     _dag_longest_path_ord(G, topo_order, inneighbors, IntT)
 end
 
@@ -141,11 +150,22 @@ Compute a longest path in the directed acyclic graph (DAG) `G`. The work arrays 
 `dist_u::Vector{IntT}` will be overwritten. See `dag_longest_path`, which allocates the work arrays for you and
 dispatches to `dag_longest_path!` in case this is the method chosen by dispatch.
 """
-function dag_longest_path!(dist_length, dist_u, G, topo_order=topological_sort(G), ::Type{IntT}=eltype(G)) where IntT
+function dag_longest_path!(
+    dist_length,
+    dist_u,
+    G,
+    topo_order = topological_sort(G),
+    ::Type{IntT} = eltype(G),
+) where {IntT}
     _dag_longest_path_ord!(dist_length, dist_u, G, topo_order, inneighbors, IntT)
 end
 
-function _dag_longest_path_ord(G, topo_order, inneighborfunc::IF, ::Type{IntT}=Int) where {IntT, IF}
+function _dag_longest_path_ord(
+    G,
+    topo_order,
+    inneighborfunc::IF,
+    ::Type{IntT} = Int,
+) where {IntT,IF}
     dist_length = Vector{IntT}(undef, length(topo_order))
     dist_u = Vector{IntT}(undef, length(topo_order))
     return _dag_longest_path_ord!(dist_length, dist_u, G, topo_order, inneighborfunc, IntT)
@@ -158,7 +178,14 @@ end
 ## 3. vertices returned by `inneighborfunc` of type `IntT`.
 ##
 ## dist_length::Vector{IntT}, dist_u::Vector{IntT} are work arrays that will be overwritten.
-function _dag_longest_path_ord!(dist_length, dist_u, G, topo_order, inneighborfunc::IF, ::Type{IntT}=Int) where {IntT, IF}
+function _dag_longest_path_ord!(
+    dist_length,
+    dist_u,
+    G,
+    topo_order,
+    inneighborfunc::IF,
+    ::Type{IntT} = Int,
+) where {IntT,IF}
     path = IntT[]
     isempty(topo_order) && return path
     default_weight = 1 # unweighted
@@ -192,7 +219,11 @@ end
 
 ## This method does not require that vertices by integers from 1 to num_verts.
 ## It could be optimized further, even for this general case.
-function dag_longest_path(G, topo_order=topological_sort(G), ::Type{IntT}=eltype(G)) where IntT
+function dag_longest_path(
+    G,
+    topo_order = topological_sort(G),
+    ::Type{IntT} = eltype(G),
+) where {IntT}
     path = IntT[]
     isempty(topo_order) && return path
     dist = Dictionary{IntT,Tuple{IntT,IntT}}() # stores (v => (length, u))

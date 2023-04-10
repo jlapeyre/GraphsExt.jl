@@ -16,7 +16,7 @@ function _follow_map(dict, ind)
     ct = 0
     loopmax = length(values(dict)) + 2
     new2 = new1 # value thrown away
-    for i in 1:loopmax
+    for i = 1:loopmax
         ct += 1
         new2 = get(dict, new1, new1)
         new2 == new1 && break
@@ -55,7 +55,10 @@ end
 (vmap::VertexMap)(i::Integer) = get(vmap.fmap, i, i)
 
 function remove_vertices!(
-    graph, vertices, remove_func!::F, vmap=VertexMap(index_type(graph))
+    graph,
+    vertices,
+    remove_func!::F,
+    vmap = VertexMap(index_type(graph)),
 ) where {F}
     for v in vertices
         n = num_vertices(graph)
