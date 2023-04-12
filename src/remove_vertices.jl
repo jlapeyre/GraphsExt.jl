@@ -52,7 +52,10 @@ function VertexMap(::Type{IntT}) where {IntT}
 end
 
 # The forward direction is likely the only useful one
-(vmap::VertexMap)(i::Integer) = get(vmap.fmap, i, i)
+
+(vmap::VertexMap)(i::Integer) = vmap(i, Val(:Forward))
+(vmap::VertexMap)(i::Integer, ::Val{:Forward}) = get(vmap.fmap, i, i)
+(vmap::VertexMap)(i::Integer, ::Val{:Reverse}) = get(vmap.imap, i, i)
 
 function remove_vertices!(
     graph,
