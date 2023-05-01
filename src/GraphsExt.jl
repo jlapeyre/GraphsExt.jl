@@ -27,7 +27,11 @@ RemoveVertices.num_vertices(g::AbstractGraph) = Graphs.nv(g)
 
 Call `remove_vertices` using `rem_vertex!` for each vertex.
 """
-function remove_vertices!(graph::Union{SimpleGraph,SimpleDiGraph}, vertices, vmap::VertexMap=VertexMap(index_type(graph)))
+function remove_vertices!(
+    graph::Union{SimpleGraph,SimpleDiGraph},
+    vertices,
+    vmap::VertexMap = VertexMap(index_type(graph)),
+)
     return remove_vertices!(graph, vertices, Graphs.rem_vertex!, vmap)
 end
 
