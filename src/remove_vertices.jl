@@ -1,7 +1,11 @@
 """
     module RemoveVertices
 
-Provides `remove_vertices!`
+Provides `remove_vertices!`.
+
+This module makes no reference to, and is independent of, Graphs.jl. This is because I find it
+useful with similar structures that use swap-and-pop for removing vertices, but that are not
+subtypes of `AbstractGraph`. The interface to `Graphs.jl` is in the file [`GraphsExt.jl`](@ref).
 """
 module RemoveVertices
 
@@ -9,8 +13,18 @@ using Dictionaries: Dictionaries, Dictionary
 
 export VertexMap, remove_vertices!, num_vertices, index_type
 
-# TODO: This is a very generic util. Used in unionfind, I think. In fact it may exist somewhere.
-# Document. Maybe clean it up.
+# This is a very generic util. Used in unionfind, I think. In fact it may exist somewhere.
+# TODO: Document. Maybe clean it up.
+# TODO: Find why compression did not seem to be neccessary.
+# TODO: Rarely 
+"""
+    _follow_map(dict, ind)
+
+Do `outind = get(dict, ind, ind)` and repeat, replacing `ind` with `outind` until
+a fixed point is reached and return the result. It is assumed there are no cycles.
+If more than the minimum number (for the worst case) of iterations is performed an
+error is thrown.
+"""
 function _follow_map(dict, ind)
     new1 = ind
     ct = 0
@@ -27,7 +41,7 @@ function _follow_map(dict, ind)
     end
     if ct == loopmax
         @show ind, ct
-        throw(ErrorException("Map does not have required structure"))
+        throw(ArgumentError("Map does not have required structure."))
     end
     return new2
 end
@@ -42,21 +56,44 @@ function num_vertices end
 # num_vertices(nodes::StructVector{<:Node{IntT}})  =
 # num_vertices(nodes::StructVector{<:Node{<:Integer}}) = length(nodes)
 
+"""
+    VertexMap{T}
+
+A bidrectional map, typically on integers.
+
+Typically `T <: Dict{IntT, IntT}` where `IntT <: Integer`. The map is meant to be one-to-one and
+onto on ``(1, \\ldots, n)``. But, in fact will act as the identity map for any argument that has not
+been explicitly mapped. There is no interface for building the map. Applying the map is
+implemented by making `vmap::VertexMap` callable.  `vmap(i)` maps `i` forward and `vmap(i,
+Val(:Reverse))` gives the reverse (or backward) map.
+"""
 struct VertexMap{T}
     fmap::T
     imap::T
 end
 
+"""
+    VertexMap(::Type{IntT})
+
+Create an empty `VertexMap` forward and reverse maps of type `Dictionary{IntT,IntT}`.
+"""
 function VertexMap(::Type{IntT}) where {IntT}
     return VertexMap(Dictionary{IntT,IntT}(), Dictionary{IntT,IntT}())
 end
 
-# The forward direction is likely the only useful one
-
+# Both directions have proven useful in practice.
 (vmap::VertexMap)(i::Integer) = vmap(i, Val(:Forward))
 (vmap::VertexMap)(i::Integer, ::Val{:Forward}) = get(vmap.fmap, i, i)
 (vmap::VertexMap)(i::Integer, ::Val{:Reverse}) = get(vmap.imap, i, i)
 
+"""
+    remove_vertices!(graph, vertices, remove_func!, [vmap::VertexMap])::VertexMap
+
+Remove `vertices` from `graph` by calling `remove_func!(graph, v)` on each vertex `v` after mapping.
+
+For `graph::SimpleGraph`, `remove_func!` should be `Graphs.remove_vertex!`. If `vmap` is not
+supplied, a new `VertexMap` is created and populated and returned.
+"""
 function remove_vertices!(
     graph,
     vertices,
