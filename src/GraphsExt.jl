@@ -9,16 +9,27 @@ using Graphs:
     inneighbors,
     outneighbors,
     edgetype
-using Graphs.SimpleGraphs: AbstractSimpleGraph, DiGraph, SimpleDiGraph
+using Graphs.SimpleGraphs: AbstractSimpleGraph, DiGraph, SimpleDiGraph, SimpleGraph
 using Dictionaries: Dictionary
 
 export split_edge!, EdgesOrdered, edges_topological, dag_longest_path, remove_vertices!
 
 include("remove_vertices.jl")
-using .RemoveVertices: RemoveVertices, remove_vertices!
+using .RemoveVertices: RemoveVertices, VertexMap
+import .RemoveVertices: remove_vertices!, index_type
 
-RemoveVertices.index_type(::SimpleDiGraph{IntT}) where {IntT} = IntT
+index_type(::SimpleDiGraph{IntT}) where {IntT} = IntT
+index_type(::SimpleGraph{IntT}) where {IntT} = IntT
 RemoveVertices.num_vertices(g::AbstractGraph) = Graphs.nv(g)
+
+"""
+    remove_vertices!(graph::Union{SimpleGraph,SimpleDiGraph}, vertices, [vmap])
+
+Call `remove_vertices` using `rem_vertex!` for each vertex.
+"""
+function remove_vertices!(graph::Union{SimpleGraph,SimpleDiGraph}, vertices, vmap::VertexMap=VertexMap(index_type(graph)))
+    return remove_vertices!(graph, vertices, Graphs.rem_vertex!, vmap)
+end
 
 """
     split_edge!(g, vfrom, vto, vmid)

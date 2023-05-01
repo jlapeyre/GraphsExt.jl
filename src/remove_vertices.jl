@@ -16,7 +16,6 @@ export VertexMap, remove_vertices!, num_vertices, index_type
 # This is a very generic util. Used in unionfind, I think. In fact it may exist somewhere.
 # TODO: Document. Maybe clean it up.
 # TODO: Find why compression did not seem to be neccessary.
-# TODO: Rarely 
 """
     _follow_map(dict, ind)
 
@@ -91,14 +90,14 @@ end
 
 Remove `vertices` from `graph` by calling `remove_func!(graph, v)` on each vertex `v` after mapping.
 
-For `graph::SimpleGraph`, `remove_func!` should be `Graphs.remove_vertex!`. If `vmap` is not
+For `graph::SimpleGraph`, `remove_func!` should be `Graphs.rem_vertex!`. If `vmap` is not
 supplied, a new `VertexMap` is created and populated and returned.
 """
 function remove_vertices!(
     graph,
     vertices,
     remove_func!::F,
-    vmap = VertexMap(index_type(graph)),
+    vmap::VertexMap = VertexMap(index_type(graph)),
 ) where {F}
     for v in vertices
         n = num_vertices(graph)
