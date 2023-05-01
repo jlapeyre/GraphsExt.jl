@@ -17,7 +17,7 @@ A vertex is an integer in $1,\ldots,|V|$. Removing a vertex  consists of swappin
 This means that the identity of the previous last vertex has changed, so any external references, including the vertices remaining to be removed in
 the call to `remove_vertices!` need to be updated. Furthermore, I find that one sometimes needs to collect groups of vertices to operate on, where some
 operations include removing vertices. For this reason, `remove_vertices!` returns both forward and backward maps for the renumbering that occurs. These maps
-are also needed internally in `remove_vertices!`. At the moment I did not include examples of how to use these maps in a real workflow, where both maps are needed. I have such an application and will link it in the future.
+are also needed internally in `remove_vertices!`. There is a small example of `remove_vertices!` in [runtests.jl](./test/runtests.jl).
 
 * `dag_longest_path` -- compute a longest path in a directed acyclic graph (DAG)
 * `edges_topological` -- iterate over edges in a topological order
